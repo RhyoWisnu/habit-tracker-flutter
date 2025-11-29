@@ -1,0 +1,25 @@
+name: habitracker
+description: Habit Tracking App
+publish_to: "none"
+
+environment:
+  sdk: '>=3.7.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.1.2
+  supabase_flutter: ^2.5.0
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  # Added assets section to include images
+  assets:
+    - assets/images/
