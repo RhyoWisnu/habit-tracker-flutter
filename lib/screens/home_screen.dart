@@ -63,8 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const StatsScreen(),
                   AddHabitScreen(
                     onHabitAdded: () {
-                      Provider.of<HabitProvider>(context, listen: false)
-                          .loadHabits();
+                      Provider.of<HabitProvider>(
+                        context,
+                        listen: false,
+                      ).loadHabits();
                       _pageController.animateToPage(
                         0,
                         duration: const Duration(milliseconds: 300),
@@ -78,10 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            BottomNavBar(
-              currentIndex: _currentIndex,
-              onTap: _onNavTap,
-            ),
+            BottomNavBar(currentIndex: _currentIndex, onTap: _onNavTap),
           ],
         ),
       ),
@@ -97,9 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 25),
 
           // Page Title
-          Center(
-            child: Text("Home", style: AppTextStyles.pageTitle),
-          ),
+          Center(child: Text("Home", style: AppTextStyles.pageTitle)),
 
           const SizedBox(height: 35),
 
@@ -108,16 +105,67 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Consumer<HabitProvider>(
             builder: (context, habitProvider, _) {
-              final weeklyData = {
-                'sun': 0.0,
-                'mon': 0.0,
-                'tue': 0.0,
-                'wed': 0.0,
-                'thu': 0.0,
-                'fri': 0.0,
-                'sat': 0.0,
+              final now = DateTime.now();
+              final startOfWeek = now.subtract(Duration(days: now.weekday % 7));
+
+              // Siapkan map kosong sesuai format ActivityChart
+              final weeklyCompleted = {
+                'sun': 0,
+                'mon': 0,
+                'tue': 0,
+                'wed': 0,
+                'thu': 0,
+                'fri': 0,
+                'sat': 0,
               };
-              return ActivityChart(weeklyData: weeklyData);
+
+              final weeklyTotal = {
+                'sun': 0,
+                'mon': 0,
+                'tue': 0,
+                'wed': 0,
+                'thu': 0,
+                'fri': 0,
+                'sat': 0,
+              };
+
+              // Hitung total target dan completed habits
+              for (var habit in habitProvider.habits) {
+                for (var dateStr in habit.completedDates) {
+                  final dateParts = dateStr.split('-').map(int.parse).toList();
+                  final date = DateTime(
+                    dateParts[0],
+                    dateParts[1],
+                    dateParts[2],
+                  );
+
+                  if (date.isAfter(
+                    startOfWeek.subtract(const Duration(days: 1)),
+                  )) {
+                    final day =
+                        [
+                          'sun',
+                          'mon',
+                          'tue',
+                          'wed',
+                          'thu',
+                          'fri',
+                          'sat',
+                        ][date.weekday % 7];
+                    weeklyCompleted[day] = weeklyCompleted[day]! + 1;
+                  }
+                }
+
+                // Total habit per hari (misal dianggap 1 setiap habit per hari)
+                for (var day in weeklyTotal.keys) {
+                  weeklyTotal[day] = weeklyTotal[day]! + 1;
+                }
+              }
+
+              return ActivityChart(
+                weeklyCompleted: weeklyCompleted,
+                weeklyTotal: weeklyTotal,
+              );
             },
           ),
 
@@ -129,9 +177,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Consumer<HabitProvider>(
             builder: (context, habitProvider, _) {
-              final upcomingHabits = habitProvider.habits
-                  .where((h) => !_isCompletedToday(h))
-                  .toList();
+              final upcomingHabits =
+                  habitProvider.habits
+                      .where((h) => !_isCompletedToday(h))
+                      .toList();
 
               if (upcomingHabits.isEmpty) return const SizedBox.shrink();
 
@@ -146,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: List.generate(upcomingHabits.length, (index) {
                   final habit = upcomingHabits[index];
                   final rotatedColor =
-                  habitColors[index % habitColors.length]; // color cycle
+                      habitColors[index % habitColors.length]; // color cycle
 
                   return HabitCard(
                     habit: habit,
@@ -172,26 +221,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Consumer<HabitProvider>(
             builder: (context, habitProvider, _) {
-              final completedHabits = habitProvider.habits
-                  .where((h) => _isCompletedToday(h))
-                  .toList();
+              final completedHabits =
+                  habitProvider.habits
+                      .where((h) => _isCompletedToday(h))
+                      .toList();
 
               if (completedHabits.isEmpty) return const SizedBox.shrink();
 
               return Column(
-                children: completedHabits.map((habit) {
-                  return HabitCard(
-                    habit: habit,
-                    isCompleted: true,
-                    onToggle: () {
-                      habitProvider.toggleHabitCompletion(
-                        habit.id,
-                        DateTime.now(),
+                children:
+                    completedHabits.map((habit) {
+                      return HabitCard(
+                        habit: habit,
+                        isCompleted: true,
+                        onToggle: () {
+                          habitProvider.toggleHabitCompletion(
+                            habit.id,
+                            DateTime.now(),
+                          );
+                        },
+                        cardColor: AppColors.habitGray, // Always gray when done
                       );
-                    },
-                    cardColor: AppColors.habitGray, // Always gray when done
-                  );
-                }).toList(),
+                    }).toList(),
               );
             },
           ),

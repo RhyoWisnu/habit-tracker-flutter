@@ -33,9 +33,9 @@ class _SignInScreenState extends State<SignInScreen> {
     );
 
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(authProvider.errorMessage ?? 'Sign in failed')),
@@ -64,7 +64,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
               ),
-              
+
               // Content
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -78,21 +78,19 @@ class _SignInScreenState extends State<SignInScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
-                    
-                    // Google Sign In Button
-                    _buildGoogleButton(),
-                    const SizedBox(height: 20),
-                    
+
                     // OR LOG IN WITH EMAIL
                     Center(
                       child: Text(
-                        'OR LOG IN WITH EMAIL',
-                        style: AppTextStyles.rubikBold(14, AppColors.textSecondary)
-                            .copyWith(letterSpacing: 0.05),
+                        'LOG IN WITH EMAIL',
+                        style: AppTextStyles.rubikBold(
+                          14,
+                          AppColors.textSecondary,
+                        ).copyWith(letterSpacing: 0.05),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Email Field
                     _buildTextField(
                       controller: _emailController,
@@ -100,14 +98,16 @@ class _SignInScreenState extends State<SignInScreen> {
                       icon: null,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Password Field
                     _buildTextField(
                       controller: _passwordController,
                       hint: 'Password',
                       icon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                           color: AppColors.textSecondary,
                         ),
                         onPressed: () {
@@ -119,7 +119,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       obscureText: _obscurePassword,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Forgot Password
                     Align(
                       alignment: Alignment.centerRight,
@@ -136,21 +136,19 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Log In Button
                     _buildLogInButton(),
                     const SizedBox(height: 20),
-                    
-                    // Facebook Button
-                    _buildFacebookButton(),
-                    const SizedBox(height: 20),
-                    
+
                     // Sign Up Link
                     Center(
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const SignUpScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const SignUpScreen(),
+                            ),
                           );
                         },
                         child: Text(
@@ -192,81 +190,11 @@ class _SignInScreenState extends State<SignInScreen> {
           hintText: hint,
           hintStyle: AppTextStyles.inputLabel,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 22,
+          ),
           suffixIcon: icon,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGoogleButton() {
-    return Container(
-      height: 63,
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.borderGray, width: 1),
-        borderRadius: BorderRadius.circular(38),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-            await authProvider.signInWithGoogle();
-          },
-          borderRadius: BorderRadius.circular(38),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Google icon placeholder
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(Icons.g_mobiledata, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'CONTINUE WITH GOOGLE',
-                style: AppTextStyles.buttonText,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFacebookButton() {
-    return Container(
-      height: 63,
-      decoration: BoxDecoration(
-        color: AppColors.primaryPurpleAccent6,
-        borderRadius: BorderRadius.circular(38),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-            await authProvider.signInWithFacebook();
-          },
-          borderRadius: BorderRadius.circular(38),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.facebook, color: AppColors.textWhite, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                'CONTINUE WITH FACEBOOK',
-                style: AppTextStyles.buttonText.copyWith(
-                  color: AppColors.textWhite,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -287,16 +215,14 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Center(
             child: Text(
               'LOG IN',
-              style: AppTextStyles.rubikMedium(13.18, AppColors.textWhite)
-                  .copyWith(letterSpacing: 0.05),
+              style: AppTextStyles.rubikMedium(
+                13.18,
+                AppColors.textWhite,
+              ).copyWith(letterSpacing: 0.05),
             ),
           ),
         ),
       ),
     );
   }
-
 }
-
-
-

@@ -3,79 +3,104 @@ import '../utils/app_colors.dart';
 import '../utils/app_text_styles.dart';
 
 class ActivityChart extends StatelessWidget {
-  final Map<String, double> weeklyData;
+  final Map<String, int> weeklyCompleted;
+  final Map<String, int> weeklyTotal;
 
   const ActivityChart({
     super.key,
-    required this.weeklyData,
+    required this.weeklyCompleted,
+    required this.weeklyTotal,
   });
+
+  double calculatePercentage(int completed, int total) {
+    if (total == 0) return 0.0;
+    return completed / total;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    final maxValue = weeklyData.values.isEmpty 
-        ? 1.0 
-        : weeklyData.values.reduce((a, b) => a > b ? a : b);
-    
+    final days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+    // Hitung nilai tertinggi untuk scaling bar chart
+    final List<double> percentValues =
+        days.map((day) {
+          final completed = weeklyCompleted[day] ?? 0;
+          final total = weeklyTotal[day] ?? 0;
+          return calculatePercentage(completed, total);
+        }).toList();
+
+    final double maxValue =
+        percentValues.isEmpty
+            ? 1.0
+            : percentValues.reduce((a, b) => a > b ? a : b);
+
     return Container(
-      width: 379.79,
-      height: 200,
+      width: double.infinity,
+      height: 230,
       decoration: BoxDecoration(
         color: AppColors.backgroundGrayLight,
         borderRadius: BorderRadius.circular(20),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         children: [
-          // Chart bars
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: days.asMap().entries.map((entry) {
-                final index = entry.key;
-                final day = entry.value;
-                final value = weeklyData[day.toLowerCase()] ?? 0.0;
-                final height = maxValue > 0 ? (value / maxValue) * 139.47 : 0.0;
-                
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      width: 26.08,
-                      height: height.clamp(0.0, 139.47),
-                      decoration: BoxDecoration(
-                        gradient: AppColors.chartGradient,
-                        borderRadius: BorderRadius.circular(8.35),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                  ],
-                );
-              }).toList(),
+              children:
+                  days.map((day) {
+                    final completed = weeklyCompleted[day] ?? 0;
+                    final total = weeklyTotal[day] ?? 0;
+
+                    final percentage = calculatePercentage(completed, total);
+
+                    // Tinggi bar chart
+                    final double barHeight =
+                        (percentage * 140).clamp(0, 140).toDouble();
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${(percentage * 100).toStringAsFixed(0)}%',
+                          style: AppTextStyles.dayLabel.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: 28,
+                          height: barHeight,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.chartGradient,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
             ),
           ),
-          
-          // Day labels
+          const SizedBox(height: 10),
+
+          // Label Hari
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: days.map((day) {
-              final isToday = day == 'Tue'; // You can make this dynamic
-              return Text(
-                day,
-                style: AppTextStyles.dayLabel.copyWith(
-                  fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
-                ),
-              );
-            }).toList(),
+            children:
+                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                    .map(
+                      (day) => Text(
+                        day,
+                        style: AppTextStyles.dayLabel.copyWith(fontSize: 12),
+                      ),
+                    )
+                    .toList(),
           ),
         ],
       ),
     );
   }
 }
-
-
-
-
-

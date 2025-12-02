@@ -11,7 +11,7 @@ class AppTextStyles {
       color: color,
     );
   }
-  
+
   static TextStyle rubikMedium(double fontSize, Color color) {
     return GoogleFonts.rubik(
       fontSize: fontSize,
@@ -19,7 +19,7 @@ class AppTextStyles {
       color: color,
     );
   }
-  
+
   static TextStyle rubikSemiBold(double fontSize, Color color) {
     return GoogleFonts.rubik(
       fontSize: fontSize,
@@ -27,7 +27,7 @@ class AppTextStyles {
       color: color,
     );
   }
-  
+
   static TextStyle rubikBold(double fontSize, Color color) {
     return GoogleFonts.rubik(
       fontSize: fontSize,
@@ -35,7 +35,7 @@ class AppTextStyles {
       color: color,
     );
   }
-  
+
   // Nunito Sans Font Styles
   static TextStyle nunitoRegular(double fontSize, Color color) {
     return GoogleFonts.nunitoSans(
@@ -44,7 +44,7 @@ class AppTextStyles {
       color: color,
     );
   }
-  
+
   static TextStyle nunitoBold(double fontSize, Color color) {
     return GoogleFonts.nunitoSans(
       fontSize: fontSize,
@@ -52,7 +52,7 @@ class AppTextStyles {
       color: color,
     );
   }
-  
+
   static TextStyle nunitoExtraBold(double fontSize, Color color) {
     return GoogleFonts.nunitoSans(
       fontSize: fontSize,
@@ -61,7 +61,7 @@ class AppTextStyles {
       letterSpacing: 0.009375,
     );
   }
-  
+
   // Airbnb Cereal Font Styles
   static TextStyle airbnbCerealBold(double fontSize, Color color) {
     return GoogleFonts.inter(
@@ -71,6 +71,12 @@ class AppTextStyles {
       letterSpacing: -0.025,
     );
   }
+  static const TextStyle smallLabel = TextStyle(
+    fontSize: 10,
+    fontWeight: FontWeight.w500,
+    color: Colors.black87,
+  );
+
   
   // Specific Text Styles from Figma
   static TextStyle get splashTitle => rubikSemiBold(24, AppColors.textWhite)

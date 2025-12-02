@@ -44,9 +44,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
 
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(authProvider.errorMessage ?? 'Sign up failed')),
@@ -75,7 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
               ),
-              
+
               // Content
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -89,21 +89,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
-                    
-                    // Google Sign In Button
-                    _buildGoogleButton(),
-                    const SizedBox(height: 20),
-                    
+
                     // OR LOG IN WITH EMAIL
                     Center(
                       child: Text(
-                        'OR LOG IN WITH EMAIL',
-                        style: AppTextStyles.rubikBold(14, AppColors.textSecondary)
-                            .copyWith(letterSpacing: 0.05),
+                        'LOG IN WITH EMAIL',
+                        style: AppTextStyles.rubikBold(
+                          14,
+                          AppColors.textSecondary,
+                        ).copyWith(letterSpacing: 0.05),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Name Field
                     _buildTextField(
                       controller: _nameController,
@@ -111,7 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       icon: null,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Email Field
                     _buildTextField(
                       controller: _emailController,
@@ -119,14 +117,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       icon: null,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Password Field
                     _buildTextField(
                       controller: _passwordController,
                       hint: 'Password',
                       icon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                           color: AppColors.textSecondary,
                         ),
                         onPressed: () {
@@ -138,7 +138,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       obscureText: _obscurePassword,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Privacy Policy Checkbox
                     Row(
                       children: [
@@ -153,23 +153,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             height: 24,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: _agreeToPrivacy 
-                                    ? AppColors.primaryPurple 
-                                    : AppColors.borderDark,
+                                color:
+                                    _agreeToPrivacy
+                                        ? AppColors.primaryPurple
+                                        : AppColors.borderDark,
                                 width: 2,
                               ),
                               borderRadius: BorderRadius.circular(4),
-                              color: _agreeToPrivacy 
-                                  ? AppColors.primaryPurple 
-                                  : Colors.transparent,
+                              color:
+                                  _agreeToPrivacy
+                                      ? AppColors.primaryPurple
+                                      : Colors.transparent,
                             ),
-                            child: _agreeToPrivacy
-                                ? const Icon(
-                                    Icons.check,
-                                    color: AppColors.textWhite,
-                                    size: 16,
-                                  )
-                                : null,
+                            child:
+                                _agreeToPrivacy
+                                    ? const Icon(
+                                      Icons.check,
+                                      color: AppColors.textWhite,
+                                      size: 16,
+                                    )
+                                    : null,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -184,21 +187,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Get Started Button
                     _buildGetStartedButton(),
                     const SizedBox(height: 20),
-                    
-                    // Facebook Button
-                    _buildFacebookButton(),
-                    const SizedBox(height: 20),
-                    
+
                     // Sign In Link
                     Center(
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (_) => const SignInScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const SignInScreen(),
+                            ),
                           );
                         },
                         child: Text(
@@ -240,80 +241,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           hintText: hint,
           hintStyle: AppTextStyles.inputLabel,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 22,
+          ),
           suffixIcon: icon,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGoogleButton() {
-    return Container(
-      height: 63,
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.borderGray, width: 1),
-        borderRadius: BorderRadius.circular(38),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-            await authProvider.signInWithGoogle();
-          },
-          borderRadius: BorderRadius.circular(38),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(Icons.g_mobiledata, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'CONTINUE WITH GOOGLE',
-                style: AppTextStyles.buttonText,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFacebookButton() {
-    return Container(
-      height: 63,
-      decoration: BoxDecoration(
-        color: AppColors.primaryPurpleAccent6,
-        borderRadius: BorderRadius.circular(38),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-            await authProvider.signInWithFacebook();
-          },
-          borderRadius: BorderRadius.circular(38),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.facebook, color: AppColors.textWhite, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                'CONTINUE WITH FACEBOOK',
-                style: AppTextStyles.buttonText.copyWith(
-                  color: AppColors.textWhite,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -334,16 +266,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Center(
             child: Text(
               'GET STARTED',
-              style: AppTextStyles.rubikMedium(13.18, AppColors.textWhite)
-                  .copyWith(letterSpacing: 0.05),
+              style: AppTextStyles.rubikMedium(
+                13.18,
+                AppColors.textWhite,
+              ).copyWith(letterSpacing: 0.05),
             ),
           ),
         ),
       ),
     );
   }
-
 }
-
-
-

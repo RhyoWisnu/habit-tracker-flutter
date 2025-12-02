@@ -6,6 +6,7 @@ import '../utils/app_text_styles.dart';
 import '../models/habit.dart';
 import '../widgets/habit_card_stats.dart';
 import 'edit_habit_screen.dart';
+import 'habit_detail_screen.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -19,16 +20,13 @@ class StatsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
-              Padding(
-                padding: const EdgeInsets.only(left: 200, top: 62),
-                child: Text(
-                  'Habits',
-                  style: AppTextStyles.pageTitle,
-                ),
+              const SizedBox(height: 25),
+              Center(
+                // <-- Mengganti Padding yang spesifik dengan Center
+                child: Text('Habits', style: AppTextStyles.pageTitle),
               ),
 
-              // Habits Grid
+              // Grid Cards
               Padding(
                 padding: const EdgeInsets.all(36),
                 child: Consumer<HabitProvider>(
@@ -39,7 +37,10 @@ class StatsScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(40.0),
                           child: Text(
                             'No habits yet. Add one to get started!',
-                            style: AppTextStyles.rubikRegular(16, AppColors.textWhite),
+                            style: AppTextStyles.rubikRegular(
+                              16,
+                              AppColors.textWhite,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -49,23 +50,39 @@ class StatsScreen extends StatelessWidget {
                     return Wrap(
                       spacing: 18,
                       runSpacing: 18,
-                      children: habitProvider.habits.map((habit) {
-                        return HabitCardStats(
-                          habit: habit,
-                          onEdit: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => EditHabitScreen(habit: habit),
-                              ),
-                            ).then((_) {
-                              habitProvider.loadHabits();
-                            });
-                          },
-                          onDelete: () {
-                            _showDeleteConfirmation(context, habit, habitProvider);
-                          },
-                        );
-                      }).toList(),
+                      children:
+                          habitProvider.habits.map((habit) {
+                            return HabitCardStats(
+                              habit: habit,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => HabitDetailScreen(habit: habit),
+                                  ),
+                                );
+                              },
+                              onEdit: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => EditHabitScreen(habit: habit),
+                                  ),
+                                ).then((_) {
+                                  habitProvider.loadHabits();
+                                });
+                              },
+                              onDelete: () {
+                                _showDeleteConfirmation(
+                                  context,
+                                  habit,
+                                  habitProvider,
+                                );
+                              },
+                            );
+                          }).toList(),
                     );
                   },
                 ),
@@ -112,9 +129,12 @@ class StatsScreen extends StatelessWidget {
               onPressed: () async {
                 Navigator.of(context).pop();
                 final success = await habitProvider.deleteHabit(habit.id);
+
                 if (success && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Habit deleted successfully!')),
+                    const SnackBar(
+                      content: Text('Habit deleted successfully!'),
+                    ),
                   );
                 } else if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -137,7 +157,3 @@ class StatsScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-

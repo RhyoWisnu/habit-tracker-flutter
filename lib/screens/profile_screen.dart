@@ -12,12 +12,105 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _soundEnabled = true;
+  // BARU: Controller untuk mengedit nama
+  final TextEditingController _nameController = TextEditingController();
+  bool _isEditing = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  // BARU: Fungsi untuk menampilkan Dialog Edit
+  void _showEditProfileDialog(BuildContext context, String currentName) {
+    _nameController.text = currentName;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.backgroundGrayLighter,
+          title: Text(
+            'Edit Profile',
+            style: AppTextStyles.settingsItem.copyWith(
+              color: AppColors.primaryPurpleDark,
+            ),
+          ),
+          content: TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: 'Display Name',
+              hintText: 'Enter your name',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primaryPurpleDark),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryPurpleDark,
+              ),
+              onPressed: () async {
+                final newName = _nameController.text.trim();
+                if (newName.isNotEmpty) {
+                  Navigator.pop(context); // Tutup dialog
+                  await _updateName(newName);
+                }
+              },
+              child: const Text('Save', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // BARU: Logika memanggil Provider untuk update data
+  Future<void> _updateName(String newName) async {
+    setState(() => _isEditing = true);
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      // Asumsi: Di AuthProvider Anda ada method updateUserName
+      // Jika belum ada, Anda perlu membuatnya (lihat catatan di bawah)
+      await authProvider.updateUserName(newName);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isEditing = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Gunakan listen: true (default) agar UI update otomatis saat nama berubah
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+
+    // Ambil nama saat ini untuk ditampilkan
+    final currentName =
+        user?.userMetadata?['name'] ?? user?.email?.split('@')[0] ?? 'User';
 
     return Scaffold(
       backgroundColor: AppColors.primaryPurpleDark,
@@ -26,15 +119,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
-              Padding(
-                padding: const EdgeInsets.only(left: 169, top: 62),
-                child: Text(
-                  'Profile',
-                  style: AppTextStyles.pageTitle,
-                ),
-              ),
-              
+              const SizedBox(height: 25),
+              Center(child: Text('Profile', style: AppTextStyles.pageTitle)),
+
               // Profile Card
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -56,69 +143,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: AppColors.backgroundGray,
                           shape: BoxShape.circle,
                         ),
-                        child: user?.userMetadata?['avatar_url'] != null
-                            ? ClipOval(
-                                child: Image.network(
-                                  user!.userMetadata!['avatar_url'],
-                                  fit: BoxFit.cover,
+                        child:
+                            user?.userMetadata?['avatar_url'] != null
+                                ? ClipOval(
+                                  child: Image.network(
+                                    user!.userMetadata!['avatar_url'],
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                                : const Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: AppColors.textSecondary,
                                 ),
-                              )
-                            : const Icon(
-                                Icons.person,
-                                size: 40,
-                                color: AppColors.textSecondary,
-                              ),
                       ),
                       const SizedBox(width: 10),
-                      
+
                       // Name and ID
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              user?.userMetadata?['name'] ?? 
-                              user?.email?.split('@')[0] ?? 
-                              'User',
-                              style: AppTextStyles.profileName,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user?.id ?? 'No ID',
-                              style: AppTextStyles.profileId,
-                            ),
+                            // Tampilkan Loading jika sedang proses save
+                            if (_isEditing)
+                              const Text(
+                                'Updating...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              )
+                            else
+                              Text(
+                                currentName,
+                                style: AppTextStyles.profileName,
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis, // Mencegah teks terlalu panjang
+                              ),
                           ],
                         ),
                       ),
+
+                      // BARU: Tombol Edit di ujung kanan kartu
+                      IconButton(
+                        onPressed:
+                            () => _showEditProfileDialog(context, currentName),
+                        icon: const Icon(
+                          Icons.edit,
+                          color: AppColors.primaryPurpleDark,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                     ],
                   ),
                 ),
               ),
-              
+
               // Settings Items
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    _buildSettingsItem(
-                      'Sound',
-                      trailing: Switch(
-                        value: _soundEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _soundEnabled = value;
-                          });
-                        },
-                        activeColor: AppColors.primaryPurpleDark,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    _buildSettingsItem('Help'),
-                    const SizedBox(height: 6),
-                    _buildSettingsItem('Rate us'),
-                    const SizedBox(height: 6),
-                    _buildSettingsItem('Share app'),
                     const SizedBox(height: 6),
                     _buildSettingsItem(
                       'Logout',
@@ -132,7 +220,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              
               const SizedBox(height: 40),
             ],
           ),
@@ -141,7 +228,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingsItem(String title, {Widget? trailing, VoidCallback? onTap}) {
+  Widget _buildSettingsItem(
+    String title, {
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -155,10 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: AppTextStyles.settingsItem,
-            ),
+            Text(title, style: AppTextStyles.settingsItem),
             trailing ??
                 const Icon(
                   Icons.arrow_forward_ios,
@@ -170,6 +258,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
 }
-
